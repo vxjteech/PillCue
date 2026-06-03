@@ -1,4 +1,4 @@
-<img width="200" height="200" alt="Logo" src="[https://github.com/user-attachments/assets/6ffde0b8-90a9-4c29-ac2e-690bc05f845a](https://api.removal.ai/download/g4/preview/f9bcc3f5-20c1-4462-bba1-a85eb2788dac.png)" />
+<img width="200" height="200" alt="Logo" src="https://github.com/user-attachments/assets/acc3c3a6-3279-4efb-9f81-679b529631a8" />
 
 # PillCue – Tracker léků a zdravotních návyků
 
