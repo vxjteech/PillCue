@@ -12,18 +12,41 @@ app.get("/", (req, res) => {
 
 app.get("/api/medicines", (req, res) => {
     const query = req.query.q || "";
+    const limitRaw = req.query.limit;
+
+    let sql = `
+        SELECT sukl_code, name
+        FROM medicines
+        WHERE name LIKE ?
+    `;
+
+    const params = [`%${query}%`];
+
+    // limit jen pokud ho zadáš
+    if (limitRaw !== undefined) {
+        const limit = parseInt(limitRaw, 10);
+
+        if (isNaN(limit) || limit <= 0) {
+            return res.status(400).json({ error: "limit musí být číslo" });
+        }
+
+        sql += " LIMIT ?";
+        params.push(limit);
+    }
 
     db.all(
-        `SELECT * FROM medicines WHERE name LIKE ? LIMIT 10`,
-        [`%${query}%`],
-        (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-
-            res.json(rows);
+    `SELECT id, sukl_code, name
+     FROM medicines
+     WHERE name LIKE ?`,
+    [`%${query}%`],
+    (err, rows) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
         }
-    );
+
+        res.json(rows);
+    }
+);
 });
 
 app.listen(PORT, () => {

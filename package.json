@@ -3,6 +3,7 @@
     "axios": "^1.16.1",
     "csv-parser": "^3.2.1",
     "express": "^5.2.1",
+    "iconv-lite": "^0.7.2",
     "sqlite3": "^6.0.1",
     "unzipper": "^0.12.3"
   }
