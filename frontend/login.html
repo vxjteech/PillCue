@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="PillCue - Přihlášení">
+    <title>PillCue - Přihlášení</title>
+    <link rel="stylesheet" href="login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="auth">
+  <div class="acard">
+    <div class="alogo">
+      <div class="alogo-ico"><img style="width: 50px;" alt="PillCue Logo" src="/img/logo.png"></div>
+      <div class="alogo-txt"><span>Pill</span>Cue</div>
+    </div>
+    <div style="font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:5px;letter-spacing:-.4px" id="atitle">Vítejte zpět</div>
+    <div style="font-size:14px;color:var(--t3);margin-bottom:22px" id="asub">Přihlaste se ke svému účtu</div>
+    <div class="atabs">
+      <div class="atab on" id="tab-in" onclick="switchTab('in')">Přihlášení</div>
+      <div class="atab" id="tab-up" onclick="switchTab('up')">Registrace</div>
+    </div>
+    <div id="aerr" class="aerr"></div>
+    <!-- LOGIN -->
+    <div id="form-in">
+      <div class="fg"><label class="fl">E-mail</label><input class="fi" id="li-email" type="email" placeholder="vas@email.cz" value="demo@pillcue.cz"></div>
+      <div class="fg"><label class="fl">Heslo</label><input class="fi" id="li-pass" type="password" placeholder="••••••••" value="demo1234"></div>
+      <button class="abtn" onclick="doLogin()">Přihlásit se →</button>
+    </div>
+    <!-- REGISTER -->
+    <div id="form-up" style="display:none">
+      <div class="fg"><label class="fl">Jméno</label><input class="fi" id="rg-name" type="text" placeholder="Jan Novák"></div>
+      <div class="fg"><label class="fl">E-mail</label><input class="fi" id="rg-email" type="email" placeholder="vas@email.cz"></div>
+      <div class="fg"><label class="fl">Heslo (min. 6 znaků)</label><input class="fi" id="rg-pass" type="password" placeholder="••••••••"></div>
+      <button class="abtn" onclick="doRegister()">Vytvořit účet →</button>
+    </div>
+    <div class="pwab">
+        <div class="pwai">📱</div>
+        <div class="pwat">
+        <div class="pwat-t">Mobilní aplikace PillCue</div>
+        <div class="pwat-s">PillCue lze stáhnout na telefon - bez nutnosti instalace skrze obchod s aplikacemi. To nabízí jednodušší přístup a mobilní notifikace.</div>
+        <div class="pwat-b">
+            <button class="btn btn-p btn-sm" onclick="showToast('📱 Výzva odeslána!','inf')">⬇ Stáhnout</button>
+            <button class="btn btn-g btn-sm" onclick="showToast('Instalaci lze provést z menu prohlížeče','warn')">Později</button>
+            </div>
+        </div>
+        </div>
+          </div>
+        </div>
+<script>
+    function switchTab(t) {
+  document.getElementById('tab-in').className = 'atab' + (t==='in' ? ' on' : '');
+  document.getElementById('tab-up').className = 'atab' + (t==='up' ? ' on' : '');
+  document.getElementById('form-in').style.display = t==='in' ? 'block' : 'none';
+  document.getElementById('form-up').style.display = t==='up' ? 'block' : 'none';
+  document.getElementById('atitle').textContent = t==='in' ? 'Vitejte zpet' : 'Vytvorit ucet';
+  document.getElementById('asub').textContent   = t==='in' ? 'Prihlaste se ke svemu uctu' : 'Zaregistrujte se zdarma';
+  document.getElementById('aerr').style.display = 'none';
+}
+
+/* theme removed — dark-only */
+
+function getUsers() { try { return JSON.parse(localStorage.getItem('pillcue_users') || '{}'); } catch(e) { return {}; } }
+function setUsers(u) { localStorage.setItem('pillcue_users', JSON.stringify(u)); }
+
+function showErr(msg) {
+  var e = document.getElementById('aerr');
+  e.textContent = msg;
+  e.style.display = 'block';
+}
+
+function doLogin() {
+  var email = document.getElementById('li-email').value.trim().toLowerCase();
+  var pass  = document.getElementById('li-pass').value;
+  if (!email || !pass) { showErr('Vyplnte e-mail a heslo.'); return; }
+  // persist signed-in user and redirect to app page
+  var users = getUsers();
+  var name = (email === 'demo@pillcue.cz' && pass === 'demo1234') ? 'Demo Uzivatel' : (users[email] ? users[email].n : null);
+  if (!name) { showErr('Nespravny e-mail nebo heslo.'); return; }
+  var user = {email: email, name: name};
+  try { localStorage.setItem('pillcue_u', JSON.stringify(user)); } catch(e) {}
+  // navigate to app which will read localStorage and initialize
+  window.location.href = 'pillcue (2).html';
+}
+
+function doRegister() {
+  var name  = document.getElementById('rg-name').value.trim();
+  var email = document.getElementById('rg-email').value.trim().toLowerCase();
+  var pass  = document.getElementById('rg-pass').value;
+  if (!name || !email || !pass) { showErr('Vyplnte vsechna pole.'); return; }
+  if (pass.length < 6) { showErr('Heslo musi mit alespon 6 znaku.'); return; }
+  if (!/\S+@\S+\.\S+/.test(email)) { showErr('Zadejte platny e-mail.'); return; }
+  var users = getUsers();
+  if (users[email]) { showErr('Ucet s timto e-mailem jiz existuje.'); return; }
+  users[email] = {n: name, p: pass};
+  setUsers(users);
+  S.user = {email: email, name: name};
+  localStorage.setItem('pillcue_u', JSON.stringify(S.user));
+  enterApp();
+}
+
+function doLogout() {
+  localStorage.removeItem('pillcue_u');
+  S.user = null;
+  document.getElementById('auth').classList.remove('gone');
+  // reset charts flag
+  chartsReady = false;
+}
+
+function enterApp() {
+  document.getElementById('aerr').style.display = 'none';
+  // After register/login on this page, redirect to the app page which initializes from localStorage
+  window.location.href = 'pillcue (2).html';
+}
+
+function updateUserUI() {
+  if (!S.user) return;
+  var ini = S.user.name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
+  document.getElementById('sbav').textContent    = ini;
+  document.getElementById('sbnm').textContent    = S.user.name;
+  document.getElementById('sett-email').textContent = S.user.email;
+}
+
+// ======================================================
+// SEED DEMO
+// ======================================================
+function seedDemo() {
+  S.meds = [
+    {id:1,code:'0000005',name:'Metformin Mylan 500 mg',dose:'500 mg',freq:'2x denne',time:'08:00',cat:'Diabetes',color:'#2bbfa4',adh:98,notes:'Po jidle'},
+    {id:2,code:'0000008',name:'Lisinopril Accord 10 mg',dose:'10 mg',freq:'1x denne',time:'20:00',cat:'Kardiovask.',color:'#3b82f6',adh:71,notes:'Grapefruit vynechat'},
+    {id:3,code:'0000012',name:'Aspirin 100 mg',dose:'100 mg',freq:'1x denne',time:'07:00',cat:'Kardiovask.',color:'#f59e0b',adh:90,notes:'Zapít vodou'},
+    {id:4,code:'0000015',name:'Vitamin D3 2000 IU',dose:'2000 IU',freq:'1x denne',time:'09:00',cat:'Doplnek',color:'#10b981',adh:85,notes:'S tucnym jidle'},
+    {id:5,code:'0000010',name:'Amlodipine Teva 5 mg',dose:'5 mg',freq:'1x denne',time:'08:30',cat:'Kardiovask.',color:'#8b5cf6',adh:71,notes:''}
+  ];
+  S.sched = [
+    {mid:1,time:'08:00',taken:true},
+    {mid:3,time:'07:00',taken:true},
+    {mid:5,time:'08:30',taken:false},
+    {mid:4,time:'09:00',taken:false},
+    {mid:2,time:'20:00',taken:false}
+  ];
+  S.nextId = 6;
+  saveS();
+}
+</script>
+</html>

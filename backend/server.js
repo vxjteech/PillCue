@@ -12,41 +12,42 @@ app.get("/", (req, res) => {
 
 app.get("/api/medicines", (req, res) => {
     const query = req.query.q || "";
-    const limitRaw = req.query.limit;
 
-    let sql = `
-        SELECT sukl_code, name
-        FROM medicines
-        WHERE name LIKE ?
-    `;
+    let limit = parseInt(req.query.limit, 10);
 
-    const params = [`%${query}%`];
-
-    // limit jen pokud ho zadáš
-    if (limitRaw !== undefined) {
-        const limit = parseInt(limitRaw, 10);
-
-        if (isNaN(limit) || limit <= 0) {
-            return res.status(400).json({ error: "limit musí být číslo" });
-        }
-
-        sql += " LIMIT ?";
-        params.push(limit);
+    if (isNaN(limit) || limit <= 0) {
+        limit = 20;
     }
 
     db.all(
-    `SELECT id, sukl_code, name
-     FROM medicines
-     WHERE name LIKE ?`,
-    [`%${query}%`],
-    (err, rows) => {
-        if (err) {
-            return res.status(500).json({ error: err.message });
-        }
+        `
+        SELECT *
+        FROM medicines
+        WHERE
+            name LIKE ?
+            OR sukl_code LIKE ?
+        ORDER BY name ASC
+        LIMIT ?
+        `,
+        [`%${query}%`, `%${query}%`, limit],
+        (err, rows) => {
+            if (err) {
+                return res.status(500).json({
+                    error: err.message
+                });
+            }
 
-        res.json(rows);
-    }
-);
+            res.json(
+                rows.map(row => ({
+                    ID: row.id,
+                    KOD_SUKL: row.sukl_code,
+                    NAZEV: row.name,
+                    SILA: row.strength,
+                    LATKY: JSON.parse(row.substances || "[]")
+                }))
+            );
+        }
+    );
 });
 
 app.listen(PORT, () => {
